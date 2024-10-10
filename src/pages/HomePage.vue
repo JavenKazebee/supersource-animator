@@ -36,7 +36,7 @@ function togglePopover(event: Event) {
         <div class="text-3xl">SuperSource Layouts</div>
 
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 h-72" v-for="layout in layouts">
+            <Card class="cards w-72 h-72 hover:border hover:border-green-500" v-for="layout in layouts">
                 <template #title>{{ layout.name }}</template>
             </Card>
         </div>
