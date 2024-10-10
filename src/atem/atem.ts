@@ -1,7 +1,8 @@
 import { Atem } from "atem-connection";
 
-export default function connect() {
-    const atem = new Atem();
+const atem = new Atem();
+
+export function connect() {
     atem.on('info', console.log);
     atem.on('error', console.error);
 
@@ -14,4 +15,8 @@ export default function connect() {
     atem.on('stateChanged', (state, pathToChange) => {
         console.log(state)
     })
+}
+
+export function getSuperSource(index: number) {
+    return atem.state?.video.superSources[index];
 }

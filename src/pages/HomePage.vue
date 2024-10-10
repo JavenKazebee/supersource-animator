@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Layout from '../atem/layout';
+import { getSuperSource } from '../atem/atem';
+import { SuperSource } from 'atem-connection/dist/state/video/superSource';
 
 const layouts = ref([] as Layout[])
 
@@ -10,7 +12,14 @@ const supersource = ref("0")
 const layoutName = ref("")
 
 function createLayout() {
-    layouts.value.push(new Layout(layoutName.value));
+    const layout = new Layout(layoutName.value);
+
+    // If we are able to fetch supersource values, set them for the layout
+    let ss = getSuperSource(parseInt(supersource.value));
+    if(ss != undefined) {
+        layout.superSource = ss as SuperSource;
+    }
+    layouts.value.push();
     layoutName.value = ""; // Clear input field
     pop.value.hide(); // Hide popup
 }

@@ -1,22 +1,27 @@
+import { SuperSource } from "atem-connection/dist/state/video/superSource";
+
 export default class Layout {
   name: string;
-  boxes: Box[] = [];
+  superSource: SuperSource;
 
   constructor(name: string) {
     this.name = name;
-  }
-}
 
-interface Box {
-    enabled: boolean;
-    x: number;
-    y: number;
-    size: number;
-    crop: {
-        enabled: boolean;
-        top: number;
-        bottom: number;
-        left: number;
-        right: number;
+    // Create empty supersource
+    this.superSource = {
+      index: 0,
+      boxes: [undefined, undefined, undefined, {
+        enabled: false,
+        size: 0,
+        source: 0,
+        x: 0,
+        y: 0,
+        cropTop: 0,
+        cropBottom: 0,
+        cropLeft: 0,
+        cropRight: 0,
+        cropped: false
+      }]
     }
+  }
 }
