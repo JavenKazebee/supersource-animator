@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "dev": "deno run --watch main.ts"
+  },
+  "imports": {
+    "@oak/oak": "jsr:@oak/oak@^17.1.0",
+    "@tajpouria/cors": "jsr:@tajpouria/cors@^1.2.1",
+    "socket.io": "npm:socket.io@^4.8.0"
+  }
+}

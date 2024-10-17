@@ -1543,6 +1543,7 @@
         "npm:postcss@^8.4.47",
         "npm:primeicons@7",
         "npm:primevue@^4.1.0",
+        "npm:socket.io-client@^4.8.0",
         "npm:tailwindcss-primeui@~0.3.4",
         "npm:tailwindcss@^3.4.13",
         "npm:typescript@^5.5.3",

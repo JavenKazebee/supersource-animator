@@ -12,6 +12,7 @@ import FloatLabel from "primevue/floatlabel";
 
 import "./style.css";
 import App from "./App.vue";
+import { connect } from "./socket/socket.ts";
 
 createApp(App)
   .use(router)
@@ -27,3 +28,5 @@ createApp(App)
   .component("InputText", InputText)
   .component("FloatLabel", FloatLabel)
   .mount("#app");
+
+  connect();

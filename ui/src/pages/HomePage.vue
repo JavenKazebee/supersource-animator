@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Layout from '../atem/layout';
-import { getSuperSource } from '../atem/atem';
-import { SuperSource } from 'atem-connection/dist/state/video/superSource';
 
-const layouts = ref([] as Layout[])
+const layouts = ref([] as string[])
 
 // Add layout popup
 const pop = ref()
@@ -12,14 +9,7 @@ const supersource = ref("0")
 const layoutName = ref("")
 
 function createLayout() {
-    const layout = new Layout(layoutName.value);
-
-    // If we are able to fetch supersource values, set them for the layout
-    let ss = getSuperSource(parseInt(supersource.value));
-    if(ss != undefined) {
-        layout.superSource = ss as SuperSource;
-    }
-    layouts.value.push();
+    layouts.value.push(layoutName.value);
     layoutName.value = ""; // Clear input field
     pop.value.hide(); // Hide popup
 }
@@ -37,7 +27,7 @@ function togglePopover(event: Event) {
 
         <div class="flex flex-wrap gap-8">
             <Card class="cards w-72 h-72 hover:border hover:border-green-500" v-for="layout in layouts">
-                <template #title>{{ layout.name }}</template>
+                <template #title>{{ layout }}</template>
             </Card>
         </div>
         
