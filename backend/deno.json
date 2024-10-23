@@ -5,6 +5,8 @@
   "imports": {
     "@oak/oak": "jsr:@oak/oak@^17.1.0",
     "@tajpouria/cors": "jsr:@tajpouria/cors@^1.2.1",
+    "atem-connection": "npm:atem-connection@^3.5.0",
     "socket.io": "npm:socket.io@^4.8.0"
-  }
+  },
+  "nodeModulesDir": "auto"
 }

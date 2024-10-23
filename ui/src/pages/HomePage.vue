@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { sendMessage, layouts } from '../socket/socket';
 
-const layouts = ref([] as string[])
+
 
 // Add layout popup
 const pop = ref()
@@ -9,7 +10,7 @@ const supersource = ref("0")
 const layoutName = ref("")
 
 function createLayout() {
-    layouts.value.push(layoutName.value);
+    sendMessage({name: layoutName.value, superSource: parseInt(supersource.value)});
     layoutName.value = ""; // Clear input field
     pop.value.hide(); // Hide popup
 }
@@ -27,7 +28,7 @@ function togglePopover(event: Event) {
 
         <div class="flex flex-wrap gap-8">
             <Card class="cards w-72 h-72 hover:border hover:border-green-500" v-for="layout in layouts">
-                <template #title>{{ layout }}</template>
+                <template #title>{{ layout.name }}</template>
             </Card>
         </div>
         
