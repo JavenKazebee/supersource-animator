@@ -1,14 +1,25 @@
 import { io } from "socket.io-client";
-import { CreateLayoutMessage, Layout, LayoutsMessage } from "../../../backend/types"
+import { AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, Layout, LayoutsMessage, SetSuperSourceLayoutMessage } from "../../../backend/types"
 import { ref } from "vue";
 
 const socket = io("localhost:3000");
 export const layouts = ref([] as Layout[])
+export const atemIP = ref("");
+export const atemConnected = ref(false);
 
-socket.on("layoutsUpdated", (data: LayoutsMessage) => {
+socket.on("layouts", (data: LayoutsMessage) => {
     layouts.value = data.layouts;
-})
+});
 
-export function sendMessage(message: CreateLayoutMessage) {
-    socket.emit("createLayout", message);
+socket.on("atemIP", (data: AtemIPMessage) => {
+    atemIP.value = data.atemIP;
+});
+
+socket.on("atemConnection", (data: AtemConnectionMessage) => {
+    atemConnected.value = data.connected;
+});
+
+
+export function sendMessage(name: string, message: CreateLayoutMessage | SetSuperSourceLayoutMessage | AtemIPMessage) {
+    socket.emit(name, message);
 }

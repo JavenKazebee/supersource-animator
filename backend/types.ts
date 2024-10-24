@@ -13,3 +13,16 @@ export interface CreateLayoutMessage {
 export interface LayoutsMessage {
     layouts: Layout[]
 }
+
+export interface SetSuperSourceLayoutMessage {
+    superSource: number;
+    layout: number;
+}
+
+export interface AtemIPMessage {
+    atemIP: string;
+}
+
+export interface AtemConnectionMessage {
+    connected: boolean;
+}

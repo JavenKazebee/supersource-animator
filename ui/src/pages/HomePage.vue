@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { sendMessage, layouts } from '../socket/socket';
+import { sendMessage, layouts, atemIP, atemConnected } from '../socket/socket';
 
+const liveLayout = ref(-1);
 
-
-// Add layout popup
+// Variables for the "add layout" popover
 const pop = ref()
 const supersource = ref("0")
 const layoutName = ref("")
 
+// Variables for the "atem ip" popover
+const atemPop = ref();
+const atemIPInput = ref("");
+
 function createLayout() {
-    sendMessage({name: layoutName.value, superSource: parseInt(supersource.value)});
+    sendMessage("createLayout", {name: layoutName.value, superSource: parseInt(supersource.value)});
     layoutName.value = ""; // Clear input field
     pop.value.hide(); // Hide popup
 }
@@ -20,14 +24,30 @@ function togglePopover(event: Event) {
     layoutName.value = ""; // Clear input field
 }
 
+function toggleAtemIPPopover(event: Event) {
+    atemPop.value.toggle(event);
+}
+
+function setLayout(layout: number) {
+    sendMessage("setSuperSourceLayout", {superSource: 1, layout: layout});
+    liveLayout.value = layout;
+}
+
+function setAtemIP() {
+    sendMessage("atemIP", {atemIP: atemIPInput.value});
+}
+
 </script>
 
 <template>
     <div class="flex flex-col ml-10 mt-10 gap-5">
-        <div class="text-3xl">SuperSource Layouts</div>
+        <div class="flex flex-row">
+            <div class="text-3xl">SuperSource Layouts</div>
+            <Button class="ml-auto mr-5" :label="atemConnected ? 'Connected' : 'Not Connected'" :severity="atemConnected ? 'success' : 'danger'" @click="toggleAtemIPPopover"/>
+        </div>
 
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 h-72 hover:border hover:border-green-500" v-for="layout in layouts">
+            <Card class="cards w-72 h-72 border-4" :class="liveLayout === index ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="(layout, index) in layouts" @click="setLayout(index)">
                 <template #title>{{ layout.name }}</template>
             </Card>
         </div>
@@ -57,6 +77,16 @@ function togglePopover(event: Event) {
                 </div>
             </div>
         </Popover>
+
+        <Popover ref="atemPop">
+            <div class="flex flex-row gap-4">
+                <FloatLabel variant="in">
+                    <InputText id="atemIPInput" type="text" v-model="atemIPInput" autofocus/>
+                    <label for="atemIPInput">Atem IP</label>
+                </FloatLabel>
+                <Button label="Connect" @click="setAtemIP"/>
+            </div>
+        </Popover>
     </div>
     
 </template>
@@ -71,5 +101,9 @@ function togglePopover(event: Event) {
 .big-button {
     height: 4rem !important;
     width: 4rem;
+}
+
+.card-border {
+    border-color: var(--p-content-background);
 }
 </style>
