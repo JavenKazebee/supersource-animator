@@ -43,8 +43,9 @@ io.on("connection", socket => {
     connectToAtem();
   });
 
-  // Send layouts on connection
+  // Send layouts and IP on connection
   socket.emit("layouts", {layouts: state.layouts});
+  socket.emit("atemIP", {atemIP: state.atemIP});
 
   console.log("connection!");
 });
@@ -85,4 +86,31 @@ function connectToAtem() {
     console.log("Disconnected!");
     io.emit("atemConnection", {connected: false});
   });
+}
+
+function animationTest() {
+  const startX = 0; // Start position
+  const endX = 10; // End position
+  const frameRate = 10; // Moves per second
+  const duration = 2000; // MS duration of animation
+
+  const frames = duration / frameRate;
+  const movementPerFrame = (endX - startX) / frames;
+  const delay = 1000 / frameRate;
+
+  animate(startX, 0, frames, movementPerFrame, delay);
+}
+
+function animate(currentX: number, frameCount: number, frames: number, increment: number, delay: number) {
+  // Return once we've reached the frame count
+  if(frameCount >= frames) {
+    return;
+  }
+
+  // Update position
+  const newX = currentX + increment;
+  atem.setSuperSourceBoxSettings({x: newX}, 0, 1);
+
+  // call the next frame of the animation
+  setTimeout(() => animate(newX, frameCount + 1, frames, increment, delay), delay);
 }
