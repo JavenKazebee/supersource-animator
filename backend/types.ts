@@ -26,3 +26,8 @@ export interface AtemIPMessage {
 export interface AtemConnectionMessage {
     connected: boolean;
 }
+
+export interface AnimateMessage {
+    superSource: number;
+    layout: number;
+}

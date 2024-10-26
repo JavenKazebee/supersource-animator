@@ -1,11 +1,13 @@
 import { Server } from "socket.io"
 import { Atem } from "atem-connection";
-import type { AtemIPMessage, CreateLayoutMessage, SetSuperSourceLayoutMessage } from "./types.ts";
+import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, Layout, SetSuperSourceLayoutMessage } from "./types.ts";
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
-import type { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
-import { loadState, saveState } from "./state.ts";
+import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
+import { loadState, saveState, type State } from "./state.ts";
+import { animateBetweenLayouts } from "./animation.ts";
 
 const atem = new Atem();
+let atemConnected = false;
 
 // Load state from file
 const state = await loadState();
@@ -38,13 +40,24 @@ io.on("connection", socket => {
     setSuperSourceLayout(message.superSource, message.layout);
   });
 
+  // Reconnect to atem when client sends new atemIP
   socket.on("atemIP", (message: AtemIPMessage) => {
     state.atemIP = message.atemIP;
     connectToAtem();
   });
 
+  // Animate between current layout and selected layout
+  socket.on("animate", (message: AnimateMessage) => {
+    const current: Layout = {
+      name: "current",
+      superSource: atem.state?.video.superSources[message.superSource] as SuperSource
+    };
+    animateBetweenLayouts(atem, current, state.layouts[message.layout], 60, 1000);
+  });
+
   // Send layouts and IP on connection
   socket.emit("layouts", {layouts: state.layouts});
+  socket.emit("atemConnection", {connected: atemConnected});
   socket.emit("atemIP", {atemIP: state.atemIP});
 
   console.log("connection!");
@@ -55,10 +68,13 @@ io.listen(3000);
 connectToAtem();
 
 function createLayout(name: string, superSource: number) {
-  state.layouts.push({
+  const ss: SuperSource = JSON.parse(JSON.stringify(atem.state?.video.superSources[superSource] as SuperSource));
+  const layout: Layout = {
     name: name,
-    superSource: atem.state?.video.superSources[superSource] as SuperSource,
-  });
+    superSource: ss,
+  }
+
+  state.layouts.push(layout);
 
   saveState(state);
 }
@@ -79,38 +95,14 @@ function connectToAtem() {
 
   atem.on("connected", () => {
     console.log("Connected!");
-    io.emit("atemConnection", {connected: true});
+    atemConnected = true;
+    io.emit("atemConnection", {connected: atemConnected});
   });
 
   atem.on("disconnected", () => {
     console.log("Disconnected!");
-    io.emit("atemConnection", {connected: false});
+    atemConnected = false;
+    io.emit("atemConnection", {connected: atemConnected});
   });
 }
 
-function animationTest() {
-  const startX = 0; // Start position
-  const endX = 10; // End position
-  const frameRate = 10; // Moves per second
-  const duration = 2000; // MS duration of animation
-
-  const frames = duration / frameRate;
-  const movementPerFrame = (endX - startX) / frames;
-  const delay = 1000 / frameRate;
-
-  animate(startX, 0, frames, movementPerFrame, delay);
-}
-
-function animate(currentX: number, frameCount: number, frames: number, increment: number, delay: number) {
-  // Return once we've reached the frame count
-  if(frameCount >= frames) {
-    return;
-  }
-
-  // Update position
-  const newX = currentX + increment;
-  atem.setSuperSourceBoxSettings({x: newX}, 0, 1);
-
-  // call the next frame of the animation
-  setTimeout(() => animate(newX, frameCount + 1, frames, increment, delay), delay);
-}

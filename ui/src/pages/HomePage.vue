@@ -29,7 +29,7 @@ function toggleAtemIPPopover(event: Event) {
 }
 
 function setLayout(layout: number) {
-    sendMessage("setSuperSourceLayout", {superSource: 1, layout: layout});
+    sendMessage("animate", {superSource: 1, layout: layout});
     liveLayout.value = layout;
 }
 
