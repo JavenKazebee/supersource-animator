@@ -80,6 +80,48 @@ export function animateBetweenLayouts(atem: Atem, start: Layout, end: Layout, fr
                     end.superSource.boxes[i]!.y = -offScreenY;
                     break;
             }
+
+            // Clear any size and crop changes
+            end.superSource.boxes[i]!.size = start.superSource.boxes[i]!.size;
+            end.superSource.boxes[i]!.cropTop = start.superSource.boxes[i]!.cropTop;
+            end.superSource.boxes[i]!.cropBottom = start.superSource.boxes[i]!.cropBottom;
+            end.superSource.boxes[i]!.cropLeft = start.superSource.boxes[i]!.cropLeft;
+            end.superSource.boxes[i]!.cropRight = start.superSource.boxes[i]!.cropRight;
+        } 
+        // Box goes from disabled -> enabled
+        else if(!start.superSource.boxes[i]?.enabled && end.superSource.boxes[i]?.enabled) {
+            // Find closest edge
+            const top = offScreenY - (end.superSource.boxes[i]?.y as number);
+            const bottom = offScreenY + (end.superSource.boxes[i]?.y as number);
+            const left = offScreenX + (end.superSource.boxes[i]?.x as number);
+            const right = offScreenX - (end.superSource.boxes[i]?.x as number);
+
+            // Set box to animate into screen from closest edge direction
+            switch(Math.min(top, bottom, left, right)) {
+                case left:
+                    start.superSource.boxes[i]!.x = -offScreenX;
+                    break;
+                case right:
+                    start.superSource.boxes[i]!.x = offScreenX;
+                    break;
+                case top:
+                    start.superSource.boxes[i]!.y = offScreenY;
+                    break;
+                case bottom:
+                    start.superSource.boxes[i]!.y = -offScreenY;
+                    break;
+            }
+
+            // Enable box and crop if needed at the start so we can actually see the animation
+            start.superSource.boxes[i]!.enabled = true;
+            start.superSource.boxes[i]!.cropped = end.superSource.boxes[i]!.cropped
+
+            // Set starting box to the same size and crop as it should end
+            start.superSource.boxes[i]!.size = end.superSource.boxes[i]!.size;
+            start.superSource.boxes[i]!.cropTop = end.superSource.boxes[i]!.cropTop;
+            start.superSource.boxes[i]!.cropBottom = end.superSource.boxes[i]!.cropBottom;
+            start.superSource.boxes[i]!.cropLeft = end.superSource.boxes[i]!.cropLeft;
+            start.superSource.boxes[i]!.cropRight = end.superSource.boxes[i]!.cropRight;
         }
     }
 
