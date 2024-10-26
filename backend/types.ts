@@ -31,3 +31,7 @@ export interface AnimateMessage {
     superSource: number;
     layout: number;
 }
+
+export interface DeleteLayoutMessage {
+    layout: number;
+}

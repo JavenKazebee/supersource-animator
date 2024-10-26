@@ -1,6 +1,6 @@
 import { Server } from "socket.io"
 import { Atem } from "atem-connection";
-import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, Layout, SetSuperSourceLayoutMessage } from "./types.ts";
+import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, SetSuperSourceLayoutMessage } from "./types.ts";
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
 import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
 import { loadState, saveState, type State } from "./state.ts";
@@ -53,6 +53,10 @@ io.on("connection", socket => {
       superSource: atem.state?.video.superSources[message.superSource] as SuperSource
     };
     animateBetweenLayouts(atem, current, state.layouts[message.layout], 60, 1000, 1);
+  });
+
+  socket.on("deleteLayout", (message: DeleteLayoutMessage) => {
+    state.layouts.splice(message.layout, 1);
   });
 
   // Send layouts and IP on connection
