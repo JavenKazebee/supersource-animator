@@ -2,10 +2,14 @@ import { Atem } from "atem-connection";
 import { Layout } from "./types.ts";
 import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
   
-function animate(atem: Atem, start: Layout, end: Layout, frameCount: number, frames: number, delay: number) {
+function animate(atem: Atem, start: Layout, end: Layout, frameCount: number, frames: number, delay: number, superSource: number) {
     // Return once we've reached the frame count
     if(frameCount >= frames) {
         console.log("Animation Complete!")
+        for(let i = 0; i < end.superSource.boxes.length; i++) {
+            atem.setSuperSourceBoxSettings(end.superSource.boxes[i] as SuperSourceBox, i, superSource);
+        }
+
         return;
     }
 
@@ -40,12 +44,45 @@ function animate(atem: Atem, start: Layout, end: Layout, frameCount: number, fra
     
 
     // call the next frame of the animation
-    setTimeout(() => animate(atem, start, end, frameCount + 1, frames, delay), delay);
+    setTimeout(() => animate(atem, start, end, frameCount + 1, frames, delay, superSource), delay);
 }
 
-export function animateBetweenLayouts(atem: Atem, start: Layout, end: Layout, frameRate: number, duration: number) {
+export function animateBetweenLayouts(atem: Atem, start: Layout, end: Layout, frameRate: number, duration: number, superSource: number) {
     const frames = (duration / 1000) * frameRate;
     const delay = 1000 / frameRate;
 
-    animate(atem, start, end, 0, frames, delay);
+    // How far to get frame off screen
+    const offScreenX = 3500;
+    const offScreenY = 2000;
+
+    for(let i = 0; i < start.superSource.boxes.length; i++) {
+
+        // Box goes from enabled -> disabled
+        if(start.superSource.boxes[i]?.enabled && !end.superSource.boxes[i]?.enabled) {
+            // Find closest edge
+            const top = offScreenY - (start.superSource.boxes[i]?.y as number);
+            const bottom = offScreenY + (start.superSource.boxes[i]?.y as number);
+            const left = offScreenX + (start.superSource.boxes[i]?.x as number);
+            const right = offScreenX - (start.superSource.boxes[i]?.x as number);
+
+            // Set box to animate to off screen in closest direction
+            switch(Math.min(top, bottom, left, right)) {
+                case left:
+                    end.superSource.boxes[i]!.x = -offScreenX;
+                    break;
+                case right:
+                    end.superSource.boxes[i]!.x = offScreenX;
+                    break;
+                case top:
+                    end.superSource.boxes[i]!.y = offScreenY;
+                    break;
+                case bottom:
+                    end.superSource.boxes[i]!.y = -offScreenY;
+                    break;
+            }
+        }
+    }
+
+
+    animate(atem, start, end, 0, frames, delay, superSource);
 }

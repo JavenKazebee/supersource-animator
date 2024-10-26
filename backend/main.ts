@@ -52,7 +52,7 @@ io.on("connection", socket => {
       name: "current",
       superSource: atem.state?.video.superSources[message.superSource] as SuperSource
     };
-    animateBetweenLayouts(atem, current, state.layouts[message.layout], 60, 1000);
+    animateBetweenLayouts(atem, current, state.layouts[message.layout], 60, 1000, 1);
   });
 
   // Send layouts and IP on connection
