@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { sendMessage, layouts, atemConnected } from '../socket/socket';
-import { DeleteLayoutMessage } from '../../../backend/types';
 
 const liveLayout = ref(-1);
 
