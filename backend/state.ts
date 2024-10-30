@@ -19,7 +19,12 @@ export function saveState(state: State) {
 export async function loadState(): Promise<State> {
     try {
         const state = JSON.parse(await Deno.readTextFile("state.json"));
-        state.layouts = new Map(Object.entries(state.layouts));
+        // Maps don't load correctly from JSON, workarounds
+        const entries = Object.entries(state.layouts);
+        state.layouts = new Map<number, Layout>();
+        for(let i = 0; i < entries.length; i++) {
+            state.layouts.set(parseInt(entries[i][0]), entries[i][1]);
+        }
         return state as State;
 
     } catch (error) {

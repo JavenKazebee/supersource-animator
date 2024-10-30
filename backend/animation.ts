@@ -12,7 +12,7 @@ function animate(atem: Atem, start: SuperSource, end: SuperSource, frameCount: n
         return;
     }
 
-    // Update
+    // Update boxes
     for(let i = 0; i < start.boxes.length; i++) {
         const startX = start.boxes[i]?.x as number;
         const endX = end.boxes[i]?.x as number;
@@ -37,6 +37,8 @@ function animate(atem: Atem, start: SuperSource, end: SuperSource, frameCount: n
             cropBottom: startCropBottom + (frameCount / frames) * (endCropBottom - startCropBottom),
             cropLeft: startCropLeft + (frameCount / frames) * (endCropLeft - startCropLeft),
             cropRight: startCropRight + (frameCount / frames) * (endCropRight - startCropRight),
+            enabled: start.boxes[i]?.enabled,
+            cropped: start.boxes[i]?.cropped
         }
         atem.setSuperSourceBoxSettings(newBox, i, 1);
     }
@@ -55,6 +57,16 @@ export function animateBetweenLayouts(atem: Atem, start: SuperSource, end: Super
     const offScreenY = 2000;
 
     for(let i = 0; i < start.boxes.length; i++) {
+
+        // If box starts uncropped and gets cropped
+        if(!start.boxes[i]?.cropped && end.boxes[i]?.cropped) {
+            start.boxes[i]!.cropped = true;
+            start.boxes[i]!.cropTop = 0;
+            start.boxes[i]!.cropBottom = 0;
+            start.boxes[i]!.cropLeft = 0;
+            start.boxes[i]!.cropRight = 0;
+        }
+
 
         // Box goes from enabled -> disabled
         if(start.boxes[i]?.enabled && !end.boxes[i]?.enabled) {
