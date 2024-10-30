@@ -59,6 +59,8 @@ io.on("connection", socket => {
 
   socket.on("deleteLayout", (message: DeleteLayoutMessage) => {
     state.layouts.delete(message.layout);
+    saveState(state);
+    socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
   });
 
   // Send layouts and IP on connection

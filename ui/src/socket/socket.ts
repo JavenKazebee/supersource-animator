@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, Layout, LayoutsMessage, SetSuperSourceLayoutMessage } from "../../../backend/types"
+import { AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutsMessage, SetSuperSourceLayoutMessage } from "../../../backend/types"
 import { ref } from "vue";
 
 const socket = io("localhost:3000");
@@ -20,6 +20,6 @@ socket.on("atemConnection", (data: AtemConnectionMessage) => {
 });
 
 
-export function sendMessage(name: string, message: CreateLayoutMessage | SetSuperSourceLayoutMessage | AtemIPMessage) {
+export function sendMessage(name: string, message: CreateLayoutMessage | SetSuperSourceLayoutMessage | AtemIPMessage | DeleteLayoutMessage) {
     socket.emit(name, message);
 }

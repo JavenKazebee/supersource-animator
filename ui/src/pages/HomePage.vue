@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { sendMessage, layouts, atemConnected } from '../socket/socket';
+import { DeleteLayoutMessage } from '../../../backend/types';
 
 const liveLayout = ref(-1);
 
@@ -37,6 +38,9 @@ function setAtemIP() {
     sendMessage("atemIP", {atemIP: atemIPInput.value});
 }
 
+function deleteLayout(layout: number) {
+    sendMessage("deleteLayout", {layout: layout});
+}
 </script>
 
 <template>
@@ -47,8 +51,13 @@ function setAtemIP() {
         </div>
 
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 h-72 border-4" :class="liveLayout === layout.id ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
+            <Card class="cards w-72 border-4" :class="liveLayout === layout.id ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
                 <template #title>{{ layout.name }}</template>
+                <template #footer>
+                    <div class="flex">
+                        <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="deleteLayout(layout.id)"/>
+                    </div>
+                </template>
             </Card>
         </div>
         
