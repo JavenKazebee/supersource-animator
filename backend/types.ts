@@ -1,6 +1,7 @@
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
 
 export interface Layout {
+    id: number;
     name: string;
     superSource: SuperSource;
 }
@@ -11,7 +12,7 @@ export interface CreateLayoutMessage {
 }
 
 export interface LayoutsMessage {
-    layouts: Layout[]
+    layouts: Layout[];
 }
 
 export interface SetSuperSourceLayoutMessage {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { sendMessage, layouts, atemIP, atemConnected } from '../socket/socket';
+import { sendMessage, layouts, atemConnected } from '../socket/socket';
 
 const liveLayout = ref(-1);
 
@@ -47,7 +47,7 @@ function setAtemIP() {
         </div>
 
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 h-72 border-4" :class="liveLayout === index ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="(layout, index) in layouts" @click="setLayout(index)">
+            <Card class="cards w-72 h-72 border-4" :class="liveLayout === layout.id ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
                 <template #title>{{ layout.name }}</template>
             </Card>
         </div>

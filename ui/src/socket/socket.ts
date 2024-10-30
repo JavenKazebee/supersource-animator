@@ -3,7 +3,7 @@ import { AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, Layout, Layo
 import { ref } from "vue";
 
 const socket = io("localhost:3000");
-export const layouts = ref([] as Layout[])
+export let layouts = ref([] as Layout[]);
 export const atemIP = ref("");
 export const atemConnected = ref(false);
 
