@@ -80,15 +80,19 @@ export function animateBetweenLayouts(atem: Atem, start: SuperSource, end: Super
             switch(Math.min(top, bottom, left, right)) {
                 case left:
                     end.boxes[i]!.x = -offScreenX;
+                    end.boxes[i]!.y = start.boxes[i]!.y;
                     break;
                 case right:
                     end.boxes[i]!.x = offScreenX;
+                    end.boxes[i]!.y = start.boxes[i]!.y;
                     break;
                 case top:
                     end.boxes[i]!.y = offScreenY;
+                    end.boxes[i]!.x = start.boxes[i]!.x;
                     break;
                 case bottom:
                     end.boxes[i]!.y = -offScreenY;
+                    end.boxes[i]!.x = start.boxes[i]!.x;
                     break;
             }
 
@@ -111,15 +115,19 @@ export function animateBetweenLayouts(atem: Atem, start: SuperSource, end: Super
             switch(Math.min(top, bottom, left, right)) {
                 case left:
                     start.boxes[i]!.x = -offScreenX;
+                    start.boxes[i]!.y = end.boxes[i]!.y;
                     break;
                 case right:
                     start.boxes[i]!.x = offScreenX;
+                    start.boxes[i]!.y = end.boxes[i]!.y;
                     break;
                 case top:
                     start.boxes[i]!.y = offScreenY;
+                    start.boxes[i]!.x = end.boxes[i]!.x;
                     break;
                 case bottom:
                     start.boxes[i]!.y = -offScreenY;
+                    start.boxes[i]!.x = end.boxes[i]!.x;
                     break;
             }
 
