@@ -14,9 +14,11 @@ const atemPop = ref();
 const atemIPInput = ref("");
 
 function createLayout() {
-    sendMessage("createLayout", {name: layoutName.value, superSource: parseInt(supersource.value)});
-    layoutName.value = ""; // Clear input field
-    pop.value.hide(); // Hide popup
+    if(atemConnected) {
+        sendMessage("createLayout", {name: layoutName.value, superSource: parseInt(supersource.value)});
+        layoutName.value = ""; // Clear input field
+        pop.value.hide(); // Hide popup
+    }
 }
 
 function togglePopover(event: Event) {
@@ -29,8 +31,10 @@ function toggleAtemIPPopover(event: Event) {
 }
 
 function setLayout(layout: number) {
-    sendMessage("animate", {superSource: 1, layout: layout});
-    liveLayout.value = layout;
+    if(atemConnected) {
+        sendMessage("animate", {superSource: 1, layout: layout});
+        liveLayout.value = layout;
+    }
 }
 
 function setAtemIP() {
@@ -50,7 +54,7 @@ function deleteLayout(layout: number) {
         </div>
 
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 border-4" :class="liveLayout === layout.id ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
+            <Card class="cards w-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
                 <template #title>{{ layout.name }}</template>
                 <template #footer>
                     <div class="flex">
@@ -81,7 +85,7 @@ function deleteLayout(layout: number) {
                     </FloatLabel>
                 </div>
                 <div class="flex justify-center">
-                    <Button label="Create" @click="createLayout"/>
+                    <Button label="Create" :disabled="!atemConnected" @click="createLayout"/>
                 </div>
             </div>
         </Popover>

@@ -26,8 +26,10 @@ io.on("connection", socket => {
 
   // Create and store a new layout
   socket.on("createLayout", (message: CreateLayoutMessage) => {
-    createLayout(message.name, message.superSource);
-    socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+    if(atemConnected) {
+      createLayout(message.name, message.superSource);
+      socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+    }
   });
 
   // Give frontend list of layouts
@@ -37,7 +39,9 @@ io.on("connection", socket => {
 
   // Set supersource to match layout
   socket.on("setSuperSourceLayout", (message: SetSuperSourceLayoutMessage) => {
-    setSuperSourceLayout(message.superSource, message.layout);
+    if(atemConnected) {
+      setSuperSourceLayout(message.superSource, message.layout);
+    }
   });
 
   // Reconnect to atem when client sends new atemIP
@@ -48,13 +52,14 @@ io.on("connection", socket => {
 
   // Animate between current layout and selected layout
   socket.on("animate", (message: AnimateMessage) => {
-    if(state.layouts.has(message.layout)) {
-      const current = atem.state?.video.superSources[message.superSource] as SuperSource
-      animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, 1);
-    } else {
-      console.log("Layout not found");
+    if(atemConnected) {
+      if(state.layouts.has(message.layout)) {
+        const current = atem.state?.video.superSources[message.superSource] as SuperSource
+        animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, 1);
+      } else {
+        console.log("Layout not found");
+      }
     }
-    
   });
 
   socket.on("deleteLayout", (message: DeleteLayoutMessage) => {
