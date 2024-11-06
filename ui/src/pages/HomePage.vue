@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { sendMessage, layouts, atemConnected } from '../socket/socket';
+import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
 
 const liveLayout = ref(-1);
+
+// Dimensions of the image on the layout cards
+const svgWidth = 192;
+const svgHeight = 108;
+const svgScale = svgWidth / 3200;
+const rectColors = ["green", "blue", "yellow", "purple"]
 
 // Variables for the "add layout" popover
 const pop = ref()
@@ -44,6 +51,16 @@ function setAtemIP() {
 function deleteLayout(layout: number) {
     sendMessage("deleteLayout", {layout: layout});
 }
+
+function transformBoxForSVG(box: SuperSourceBox, index: number) {
+    const width = svgWidth * (box!.size / 1000);
+    const height = svgHeight * (box!.size / 1000);
+    const x = box!.x * svgScale + svgWidth / 2 - width / 2;
+    const y = svgHeight / 2 - box!.y * svgScale - height / 2;
+    const fill = rectColors[index];
+
+    return {x, y, width, height, fill};
+}
 </script>
 
 <template>
@@ -56,6 +73,14 @@ function deleteLayout(layout: number) {
         <div class="flex flex-wrap gap-8">
             <Card class="cards w-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
                 <template #title>{{ layout.name }}</template>
+                <template #content>
+                    <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
+                        <rect 
+                            v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)"
+                            v-bind="transformBoxForSVG(box!, index)"
+                        />
+                    </svg>
+                </template>
                 <template #footer>
                     <div class="flex">
                         <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="deleteLayout(layout.id)"/>
