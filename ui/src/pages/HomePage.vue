@@ -61,6 +61,14 @@ function transformBoxForSVG(box: SuperSourceBox, index: number) {
 
     return {x, y, width, height, fill};
 }
+
+function transformTextForSVG(box: SuperSourceBox) {
+    const boxTransform = transformBoxForSVG(box, 0);
+    const x = boxTransform.x + boxTransform.width / 2;
+    const y = boxTransform.y + boxTransform.height / 2;
+
+    return {x, y};
+}
 </script>
 
 <template>
@@ -75,10 +83,11 @@ function transformBoxForSVG(box: SuperSourceBox, index: number) {
                 <template #title>{{ layout.name }}</template>
                 <template #content>
                     <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
-                        <rect 
-                            v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)"
-                            v-bind="transformBoxForSVG(box!, index)"
-                        />
+                        <g v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)">
+                            <rect v-bind="transformBoxForSVG(box!, index)"/>
+                            <text class="svgText" text-anchor="middle" dominant-baseline="middle" v-bind="transformTextForSVG(box!)" fill="black" >{{ index + 1 }}</text>
+                        </g>
+                        
                     </svg>
                 </template>
                 <template #footer>
@@ -142,5 +151,10 @@ function transformBoxForSVG(box: SuperSourceBox, index: number) {
 
 .card-border {
     border-color: var(--p-content-background);
+}
+
+.svgText {
+    font-size: 1.5rem;
+    color: white;
 }
 </style>
