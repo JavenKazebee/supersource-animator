@@ -9,7 +9,7 @@ const liveLayout = ref(-1);
 const svgWidth = 192;
 const svgHeight = 108;
 const svgScale = svgWidth / 3200;
-const rectColors = ["green", "blue", "yellow", "purple"]
+const rectColors = ["green", "deepskyblue", "yellow", "magenta"]
 
 // Variables for the "add layout" popover
 const pop = ref()
