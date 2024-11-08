@@ -4,6 +4,11 @@ import { sendMessage, layouts, atemConnected } from '../socket/socket';
 import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
 
 const liveLayout = ref(-1);
+const liveSuperSource = ref(0);
+const liveSuperSourceOptions = ref([
+    {name: "SuperSource 1", value: 0},
+    {name: "SuperSource 2", value: 1}
+]);
 
 // Dimensions of the image on the layout cards
 const svgWidth = 192;
@@ -39,7 +44,7 @@ function toggleAtemIPPopover(event: Event) {
 
 function setLayout(layout: number) {
     if(atemConnected) {
-        sendMessage("animate", {superSource: 1, layout: layout});
+        sendMessage("animate", {superSource: liveSuperSource.value, layout: layout});
         liveLayout.value = layout;
     }
 }
@@ -72,9 +77,10 @@ function transformTextForSVG(box: SuperSourceBox) {
 </script>
 
 <template>
-    <div class="flex flex-col ml-10 mt-10 gap-5">
+    <div class="flex flex-col ml-10 mt-5 gap-5">
         <div class="flex flex-row">
             <div class="text-3xl">SuperSource Layouts</div>
+            <SelectButton class="ml-auto" v-model="liveSuperSource" :options="liveSuperSourceOptions" optionLabel="name"/>
             <Button class="ml-auto mr-5" :label="atemConnected ? 'Connected' : 'Not Connected'" :severity="atemConnected ? 'success' : 'danger'" @click="toggleAtemIPPopover"/>
         </div>
 
@@ -151,10 +157,5 @@ function transformTextForSVG(box: SuperSourceBox) {
 
 .card-border {
     border-color: var(--p-content-background);
-}
-
-.svgText {
-    font-size: 1.5rem;
-    color: white;
 }
 </style>

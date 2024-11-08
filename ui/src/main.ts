@@ -9,6 +9,7 @@ import Popover from "primevue/popover";
 import RadioButton from "primevue/radiobutton";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
+import SelectButton from "primevue/selectbutton";
 
 import "./style.css";
 import App from "./App.vue";
@@ -26,4 +27,5 @@ createApp(App)
   .component("RadioButton", RadioButton)
   .component("InputText", InputText)
   .component("FloatLabel", FloatLabel)
+  .component("SelectButton", SelectButton)
   .mount("#app");
