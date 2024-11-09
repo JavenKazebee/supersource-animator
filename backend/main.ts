@@ -55,7 +55,7 @@ io.on("connection", socket => {
     if(atemConnected) {
       if(state.layouts.has(message.layout)) {
         const current = atem.state?.video.superSources[message.superSource] as SuperSource
-        animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, 1);
+        animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, message.superSource);
       } else {
         console.log("Layout not found");
       }

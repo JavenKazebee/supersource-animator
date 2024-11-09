@@ -40,7 +40,7 @@ function animate(atem: Atem, start: SuperSource, end: SuperSource, frameCount: n
             enabled: start.boxes[i]?.enabled,
             cropped: start.boxes[i]?.cropped
         }
-        atem.setSuperSourceBoxSettings(newBox, i, 1);
+        atem.setSuperSourceBoxSettings(newBox, i, superSource);
     }
     
 

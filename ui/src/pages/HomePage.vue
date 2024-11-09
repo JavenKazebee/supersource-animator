@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { sendMessage, layouts, atemConnected } from '../socket/socket';
+import { sendMessage, layouts, atemConnected, atemIP } from '../socket/socket';
 import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
 
 const liveLayout = ref(-1);
-const liveSuperSource = ref(0);
 const liveSuperSourceOptions = ref([
     {name: "SuperSource 1", value: 0},
     {name: "SuperSource 2", value: 1}
 ]);
+const liveSuperSource = ref(liveSuperSourceOptions.value[0]);
 
 // Dimensions of the image on the layout cards
 const svgWidth = 192;
@@ -23,7 +23,6 @@ const layoutName = ref("")
 
 // Variables for the "atem ip" popover
 const atemPop = ref();
-const atemIPInput = ref("");
 
 function createLayout() {
     if(atemConnected) {
@@ -44,13 +43,13 @@ function toggleAtemIPPopover(event: Event) {
 
 function setLayout(layout: number) {
     if(atemConnected) {
-        sendMessage("animate", {superSource: liveSuperSource.value, layout: layout});
+        sendMessage("animate", {superSource: liveSuperSource.value.value, layout: layout});
         liveLayout.value = layout;
     }
 }
 
 function setAtemIP() {
-    sendMessage("atemIP", {atemIP: atemIPInput.value});
+    sendMessage("atemIP", {atemIP: atemIP.value});
 }
 
 function deleteLayout(layout: number) {
@@ -80,7 +79,7 @@ function transformTextForSVG(box: SuperSourceBox) {
     <div class="flex flex-col ml-10 mt-5 gap-5">
         <div class="flex flex-row">
             <div class="text-3xl">SuperSource Layouts</div>
-            <SelectButton class="ml-auto" v-model="liveSuperSource" :options="liveSuperSourceOptions" optionLabel="name"/>
+            <SelectButton class="ml-auto" v-model="liveSuperSource" :options="liveSuperSourceOptions" optionLabel="name" :allowEmpty="false"/>
             <Button class="ml-auto mr-5" :label="atemConnected ? 'Connected' : 'Not Connected'" :severity="atemConnected ? 'success' : 'danger'" @click="toggleAtemIPPopover"/>
         </div>
 
@@ -133,7 +132,7 @@ function transformTextForSVG(box: SuperSourceBox) {
         <Popover ref="atemPop">
             <div class="flex flex-row gap-4">
                 <FloatLabel variant="in">
-                    <InputText id="atemIPInput" type="text" v-model="atemIPInput" autofocus/>
+                    <InputText id="atemIPInput" type="text" v-model="atemIP" autofocus/>
                     <label for="atemIPInput">Atem IP</label>
                 </FloatLabel>
                 <Button label="Connect" @click="setAtemIP"/>
