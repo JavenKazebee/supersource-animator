@@ -2,8 +2,35 @@
 import { ref } from 'vue';
 import { sendMessage, layouts, atemConnected, atemIP } from '../socket/socket';
 import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
+import { useConfirm } from 'primevue/useconfirm';
 
 const liveLayout = ref(-1);
+
+
+// Delete confirmation dialog
+const confirm = useConfirm();
+const confirmDelete = (layout: number) => {
+    confirm.require({
+       message: 'Are you sure you want to delete this layout?',
+       header: 'Delete Layout',
+       icon: 'pi pi-exclamation-triangle',
+       rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Delete',
+            severity: 'danger'
+        },
+        accept: () => {
+            deleteLayout(layout);
+        },
+        reject: () => {}
+    });
+}
+
+// Variables for the supersource selector
 const liveSuperSourceOptions = ref([
     {name: "SuperSource 1", value: 0},
     {name: "SuperSource 2", value: 1}
@@ -32,15 +59,18 @@ function createLayout() {
     }
 }
 
+// Toggle the "add layout" popover
 function togglePopover(event: Event) {
     pop.value.toggle(event);
     layoutName.value = ""; // Clear input field
 }
 
+// Toggle the "atem ip" popover
 function toggleAtemIPPopover(event: Event) {
     atemPop.value.toggle(event);
 }
 
+// Animate to the selected layout
 function setLayout(layout: number) {
     if(atemConnected) {
         sendMessage("animate", {superSource: liveSuperSource.value.value, layout: layout});
@@ -48,14 +78,17 @@ function setLayout(layout: number) {
     }
 }
 
+// Set the atemIP
 function setAtemIP() {
     sendMessage("atemIP", {atemIP: atemIP.value});
 }
 
+// Delete a layout
 function deleteLayout(layout: number) {
     sendMessage("deleteLayout", {layout: layout});
 }
 
+// Convert a SuperSourceBox to SVG coordinates
 function transformBoxForSVG(box: SuperSourceBox, index: number) {
     const width = svgWidth * (box!.size / 1000);
     const height = svgHeight * (box!.size / 1000);
@@ -66,6 +99,7 @@ function transformBoxForSVG(box: SuperSourceBox, index: number) {
     return {x, y, width, height, fill};
 }
 
+// Convert label for a SuperSourceBox to SVG coordinates
 function transformTextForSVG(box: SuperSourceBox) {
     const boxTransform = transformBoxForSVG(box, 0);
     const x = boxTransform.x + boxTransform.width / 2;
@@ -76,6 +110,7 @@ function transformTextForSVG(box: SuperSourceBox) {
 </script>
 
 <template>
+    <ConfirmDialog></ConfirmDialog>
     <div class="flex flex-col ml-10 mt-5 gap-5">
         <div class="flex flex-row">
             <div class="text-3xl">SuperSource Layouts</div>
@@ -97,7 +132,7 @@ function transformTextForSVG(box: SuperSourceBox) {
                 </template>
                 <template #footer>
                     <div class="flex">
-                        <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="deleteLayout(layout.id)"/>
+                        <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="confirmDelete(layout.id)"/>
                     </div>
                 </template>
             </Card>
