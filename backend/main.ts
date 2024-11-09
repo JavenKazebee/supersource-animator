@@ -8,6 +8,7 @@ import { animateBetweenLayouts } from "./animation.ts";
 
 const atem = new Atem();
 let atemConnected = false;
+let animationPlaying = false;
 
 // Load state from file
 const state = await loadState();
@@ -52,8 +53,9 @@ io.on("connection", socket => {
 
   // Animate between current layout and selected layout
   socket.on("animate", (message: AnimateMessage) => {
-    if(atemConnected) {
+    if(atemConnected && !animationPlaying) {
       if(state.layouts.has(message.layout)) {
+        animationPlaying = true;
         const current = atem.state?.video.superSources[message.superSource] as SuperSource
         animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, message.superSource);
       } else {
@@ -123,3 +125,6 @@ function connectToAtem() {
   });
 }
 
+export function animationFinished() {
+  animationPlaying = false;
+}

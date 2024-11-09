@@ -1,14 +1,15 @@
 import { Atem } from "atem-connection";
 import { SuperSourceBox, SuperSource } from "atem-connection/dist/state/video/superSource.js";
+import { animationFinished } from "./main.ts";
   
 function animate(atem: Atem, start: SuperSource, end: SuperSource, frameCount: number, frames: number, delay: number, superSource: number) {
     // Return once we've reached the frame count
     if(frameCount >= frames) {
-        console.log("Animation Complete!")
         for(let i = 0; i < end.boxes.length; i++) {
             atem.setSuperSourceBoxSettings(end.boxes[i] as SuperSourceBox, i, superSource);
         }
 
+        animationFinished();
         return;
     }
 
