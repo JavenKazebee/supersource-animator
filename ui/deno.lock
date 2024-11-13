@@ -1587,6 +1587,7 @@
         "npm:tailwindcss@^3.4.13",
         "npm:typescript@^5.5.3",
         "npm:vite@^5.4.8",
+        "npm:vue-draggable-plus@~0.5.6",
         "npm:vue-router@^4.4.5",
         "npm:vue-tsc@^2.1.6",
         "npm:vue@^3.5.10"

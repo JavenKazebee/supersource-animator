@@ -3,6 +3,7 @@ import type { Layout } from "./types.ts";
 export interface State {
     atemIP: string;
     layouts: Map<number, Layout>;
+    layoutOrder: number[];
     layoutIDCounter: number;
 }
 
@@ -11,6 +12,7 @@ export function saveState(state: State) {
     const newState = {
         atemIP: state.atemIP,
         layouts: layoutObj,
+        layoutOrder: state.layoutOrder,
         layoutIDCounter: state.layoutIDCounter
     }
     Deno.writeTextFile("state.json", JSON.stringify(newState));
@@ -30,6 +32,6 @@ export async function loadState(): Promise<State> {
     } catch (error) {
         console.log(error);
         // Return empty state if no file
-        return {atemIP: "",layouts: new Map<number, Layout>(), layoutIDCounter: 0} as State;
+        return {atemIP: "", layouts: new Map<number, Layout>(), layoutOrder: [], layoutIDCounter: 0} as State;
     }
 }

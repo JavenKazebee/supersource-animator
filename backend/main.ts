@@ -1,6 +1,6 @@
 import { Server } from "socket.io"
 import { Atem } from "atem-connection";
-import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, SetSuperSourceLayoutMessage } from "./types.ts";
+import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, SetSuperSourceLayoutMessage } from "./types.ts";
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
 import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
 import { loadState, saveState } from "./state.ts";
@@ -29,13 +29,13 @@ io.on("connection", socket => {
   socket.on("createLayout", (message: CreateLayoutMessage) => {
     if(atemConnected) {
       createLayout(message.name, message.superSource);
-      socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+      socket.emit("layouts", {layouts: Array.from(state.layouts.values()), layoutOrder: state.layoutOrder});
     }
   });
 
   // Give frontend list of layouts
   socket.on("getLayouts", () => {
-    socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+    socket.emit("layouts", {layouts: Array.from(state.layouts.values()), layoutOrder: state.layoutOrder});
   });
 
   // Set supersource to match layout
@@ -48,6 +48,7 @@ io.on("connection", socket => {
   // Reconnect to atem when client sends new atemIP
   socket.on("atemIP", (message: AtemIPMessage) => {
     state.atemIP = message.atemIP;
+    saveState(state);
     connectToAtem();
   });
 
@@ -67,11 +68,16 @@ io.on("connection", socket => {
   socket.on("deleteLayout", (message: DeleteLayoutMessage) => {
     state.layouts.delete(message.layout);
     saveState(state);
-    socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+    socket.emit("layouts", {layouts: Array.from(state.layouts.values()), layoutOrder: state.layoutOrder});
+  });
+
+  socket.on("setLayoutOrder", (message: LayoutOrderMessage) => {
+    state.layoutOrder = message.layoutOrder;
+    saveState(state);
   });
 
   // Send layouts and IP on connection
-  socket.emit("layouts", {layouts: Array.from(state.layouts.values())});
+  socket.emit("layouts", {layouts: Array.from(state.layouts.values()), layoutOrder: state.layoutOrder});
   socket.emit("atemConnection", {connected: atemConnected});
   socket.emit("atemIP", {atemIP: state.atemIP});
 
@@ -91,6 +97,7 @@ function createLayout(name: string, superSource: number) {
   }
 
   state.layouts.set(layout.id, layout);
+  state.layoutOrder.push(layout.id);
   saveState(state);
 }
 

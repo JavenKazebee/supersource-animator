@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { sendMessage, layouts, atemConnected, atemIP } from '../socket/socket';
+import { computed, ref } from 'vue';
+import { sendMessage, layouts, atemConnected, atemIP, layoutOrder } from '../socket/socket';
 import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
 import { useConfirm } from 'primevue/useconfirm';
+import { VueDraggable } from 'vue-draggable-plus';
 
 const liveLayout = ref(-1);
 
@@ -107,37 +108,55 @@ function transformTextForSVG(box: SuperSourceBox) {
 
     return {x, y};
 }
+
+function setLayoutOrder() {
+    sendMessage("setLayoutOrder", {layoutOrder: layoutOrder.value});
+}
+
+const orderedLayouts = computed(() => {
+    return layoutOrder.value
+        .map(id => layouts.value
+        .find(layout => layout.id === id))
+        .filter(layout => layout !== undefined);
+});
 </script>
 
 <template>
     <ConfirmDialog></ConfirmDialog>
+
     <div class="flex flex-col ml-10 mt-5 gap-5">
+
+        <!-- Header row-->
         <div class="flex flex-row">
-            <div class="text-3xl">SuperSource Layouts</div>
+            <div class="text-3xl">SuperSource Layouts {{ layoutOrder }}</div>
             <SelectButton class="ml-auto" v-model="liveSuperSource" :options="liveSuperSourceOptions" optionLabel="name" :allowEmpty="false"/>
             <Button class="ml-auto mr-5" :label="atemConnected ? 'Connected' : 'Not Connected'" :severity="atemConnected ? 'success' : 'danger'" @click="toggleAtemIPPopover"/>
         </div>
 
+        <!-- Layout cards-->
         <div class="flex flex-wrap gap-8">
-            <Card class="cards w-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in layouts" @click="setLayout(layout.id)">
-                <template #title>{{ layout.name }}</template>
-                <template #content>
-                    <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
-                        <g v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)">
-                            <rect v-bind="transformBoxForSVG(box!, index)"/>
-                            <text class="svgText" text-anchor="middle" dominant-baseline="middle" v-bind="transformTextForSVG(box!)" fill="black" >{{ index + 1 }}</text>
-                        </g>
-                        
-                    </svg>
-                </template>
-                <template #footer>
-                    <div class="flex">
-                        <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="confirmDelete(layout.id)"/>
-                    </div>
-                </template>
-            </Card>
+            <VueDraggable class="flex flex-wrap gap-8" ref="div" v-model="layoutOrder" @end="setLayoutOrder()">
+                <Card class="cards w-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in orderedLayouts" @click="setLayout(layout.id)">
+                    <template #title>{{ layout.name }}</template>
+                    <template #content>
+                        <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
+                            <g v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)">
+                                <rect v-bind="transformBoxForSVG(box!, index)"/>
+                                <text class="svgText" text-anchor="middle" dominant-baseline="middle" v-bind="transformTextForSVG(box!)" fill="black" >{{ index + 1 }}</text>
+                            </g>
+                            
+                        </svg>
+                    </template>
+                    <template #footer>
+                        <div class="flex">
+                            <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="confirmDelete(layout.id)"/>
+                        </div>
+                    </template>
+                </Card>
+            </VueDraggable>
         </div>
         
+        <!-- Floating button -->
         <Button icon="pi pi-plus" rounded class="float" :pt="{root: 'big-button'}" @click="togglePopover"/>
 
         <Popover ref="pop">

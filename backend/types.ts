@@ -13,6 +13,7 @@ export interface CreateLayoutMessage {
 
 export interface LayoutsMessage {
     layouts: Layout[];
+    layoutOrder: number[];
 }
 
 export interface SetSuperSourceLayoutMessage {
@@ -35,4 +36,8 @@ export interface AnimateMessage {
 
 export interface DeleteLayoutMessage {
     layout: number;
+}
+
+export interface LayoutOrderMessage {
+    layoutOrder: number[];
 }
