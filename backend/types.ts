@@ -41,3 +41,11 @@ export interface DeleteLayoutMessage {
 export interface LayoutOrderMessage {
     layoutOrder: number[];
 }
+
+export interface AnimationFPSMessage {
+    fps: number;
+}
+
+export interface AnimationDurationMessage {
+    duration: number;
+}

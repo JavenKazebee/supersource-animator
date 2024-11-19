@@ -1,6 +1,6 @@
 import { Server } from "socket.io"
 import { Atem } from "atem-connection";
-import type { AnimateMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, SetSuperSourceLayoutMessage } from "./types.ts";
+import type { AnimateMessage, AnimationDurationMessage, AnimationFPSMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, SetSuperSourceLayoutMessage } from "./types.ts";
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
 import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
 import { loadState, saveState } from "./state.ts";
@@ -58,7 +58,7 @@ io.on("connection", socket => {
       if(state.layouts.has(message.layout)) {
         animationPlaying = true;
         const current = atem.state?.video.superSources[message.superSource] as SuperSource
-        animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, 60, 1000, message.superSource);
+        animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, state.animationFPS, state.animationDuration, message.superSource);
       } else {
         console.log("Layout not found");
       }
@@ -76,10 +76,22 @@ io.on("connection", socket => {
     saveState(state);
   });
 
-  // Send layouts and IP on connection
+  socket.on("animationFPS", (message: AnimationFPSMessage) => {
+    state.animationFPS = message.fps;
+    saveState(state);
+  });
+
+  socket.on("animationDuration", (message: AnimationDurationMessage) => {
+    state.animationDuration = message.duration;
+    saveState(state);
+  });
+
+  // Send layouts, IP, and animation properties on connection
   socket.emit("layouts", {layouts: Array.from(state.layouts.values()), layoutOrder: state.layoutOrder});
   socket.emit("atemConnection", {connected: atemConnected});
   socket.emit("atemIP", {atemIP: state.atemIP});
+  socket.emit("animationFPS", {fps: state.animationFPS});
+  socket.emit("animationDuration", {duration: state.animationDuration});
 
   console.log("connection!");
 });

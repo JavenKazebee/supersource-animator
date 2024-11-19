@@ -5,6 +5,8 @@ export interface State {
     layouts: Map<number, Layout>;
     layoutOrder: number[];
     layoutIDCounter: number;
+    animationFPS: number;
+    animationDuration: number;
 }
 
 export function saveState(state: State) {
@@ -13,7 +15,9 @@ export function saveState(state: State) {
         atemIP: state.atemIP,
         layouts: layoutObj,
         layoutOrder: state.layoutOrder,
-        layoutIDCounter: state.layoutIDCounter
+        layoutIDCounter: state.layoutIDCounter,
+        animationFPS: state.animationFPS,
+        animationDuration: state.animationDuration
     }
     Deno.writeTextFile("state.json", JSON.stringify(newState));
 }
@@ -30,8 +34,7 @@ export async function loadState(): Promise<State> {
         return state as State;
 
     } catch (error) {
-        console.log(error);
         // Return empty state if no file
-        return {atemIP: "", layouts: new Map<number, Layout>(), layoutOrder: [], layoutIDCounter: 0} as State;
+        return {atemIP: "", layouts: new Map<number, Layout>(), layoutOrder: [], layoutIDCounter: 0, animationFPS: 60, animationDuration: 1000} as State;
     }
 }

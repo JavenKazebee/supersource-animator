@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { sendMessage, layouts, atemConnected, atemIP, layoutOrder } from '../socket/socket';
+import { computed, ref, watch } from 'vue';
+import { sendMessage, layouts, atemConnected, atemIP, layoutOrder, animationFPS, animationDuration } from '../socket/socket';
 import { SuperSourceBox } from 'atem-connection/dist/state/video/superSource';
 import { useConfirm } from 'primevue/useconfirm';
 import { VueDraggable } from 'vue-draggable-plus';
@@ -113,6 +113,15 @@ function setLayoutOrder() {
     sendMessage("setLayoutOrder", {layoutOrder: layoutOrder.value});
 }
 
+// Watch for changes to the animation settings and update the backend
+watch(animationFPS, () => {
+    sendMessage("animationFPS", {fps: animationFPS.value});
+});
+
+watch(animationDuration, () => {
+    sendMessage("animationDuration", {duration: animationDuration.value});
+});
+
 const orderedLayouts = computed(() => {
     return layoutOrder.value
         .map(id => layouts.value
@@ -124,41 +133,68 @@ const orderedLayouts = computed(() => {
 <template>
     <ConfirmDialog></ConfirmDialog>
 
-    <div class="flex flex-col ml-10 mt-5 gap-5">
+    <div class="flex flex-col gap-5">
 
         <!-- Header row-->
-        <div class="flex flex-row">
-            <div class="text-3xl">SuperSource Layouts {{ layoutOrder }}</div>
+        <div class="flex flex-row pt-5 pl-10 pb-5 bg-gray-700">
+            <div class="text-3xl">SuperSource Layouts</div>
             <SelectButton class="ml-auto" v-model="liveSuperSource" :options="liveSuperSourceOptions" optionLabel="name" :allowEmpty="false"/>
             <Button class="ml-auto mr-5" :label="atemConnected ? 'Connected' : 'Not Connected'" :severity="atemConnected ? 'success' : 'danger'" @click="toggleAtemIPPopover"/>
         </div>
 
-        <!-- Layout cards-->
-        <div class="flex flex-wrap gap-8">
-            <VueDraggable class="flex flex-wrap gap-8" ref="div" v-model="layoutOrder" @end="setLayoutOrder()">
-                <Card class="cards w-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in orderedLayouts" @click="setLayout(layout.id)">
-                    <template #title>{{ layout.name }}</template>
-                    <template #content>
-                        <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
-                            <g v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)">
-                                <rect v-bind="transformBoxForSVG(box!, index)"/>
-                                <text class="svgText" text-anchor="middle" dominant-baseline="middle" v-bind="transformTextForSVG(box!)" fill="black" >{{ index + 1 }}</text>
-                            </g>
-                            
-                        </svg>
-                    </template>
-                    <template #footer>
-                        <div class="flex">
-                            <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="confirmDelete(layout.id)"/>
-                        </div>
-                    </template>
-                </Card>
-            </VueDraggable>
+        <!-- Main row -->
+        <div class="flex flex-row">
+            <!-- Layout cards-->
+            <div class="flex gap-8 ml-4">
+                <ScrollPanel>
+                    <VueDraggable class="flex flex-wrap gap-8" ref="div" v-model="layoutOrder" @end="setLayoutOrder()">
+                        <Card class="cards w-72 h-72 border-4" :class="(liveLayout === layout.id && atemConnected) ? 'border-red-500' : 'hover:border-green-500 card-border'" v-for="layout in orderedLayouts" @click="setLayout(layout.id)">
+                            <template #title>{{ layout.name }}</template>
+                            <template #content>
+                                <svg :width="svgWidth" :height="svgHeight" xmlns="http://www.w3.org/2000/svg">
+                                    <g v-for="(box, index) in layout.superSource.boxes.filter(box => box?.enabled)">
+                                        <rect v-bind="transformBoxForSVG(box!, index)"/>
+                                        <text class="svgText" text-anchor="middle" dominant-baseline="middle" v-bind="transformTextForSVG(box!)" fill="black" >{{ index + 1 }}</text>
+                                    </g>
+                                </svg>
+                            </template>
+                            <template #footer>
+                                <div class="flex">
+                                    <Button class="ml-auto" icon="pi pi-trash" rounded text severity="danger" @click.stop="confirmDelete(layout.id)"/>
+                                </div>
+                            </template>
+                        </Card>
+                    </VueDraggable>
+                </ScrollPanel>
+            </div>
+
+            <Divider layout="vertical" class="!ml-auto !mr-2"/>
+
+            <!-- Right sidebar -->
+            <div class="flex flex-col gap-4 mr-2 h-screen items-center">
+                <div class="mt-4 font-bold">Animation Properties</div>
+                <!-- Animation FPS -->
+                <div class="flex flex-col items-center m-4 gap-2">
+                    <div>FPS</div>
+                    <InputNumber pt:pcInputText:root:size="3" v-model="animationFPS" :min="1" :max="120"/>
+                    <Slider class="mt-2 w-40" v-model="animationFPS" :min="1" :max="120"/>
+                </div>
+
+                <!-- Animation duration -->
+                <div class="flex flex-col items-center m-4 gap-2">
+                    <div>Duration (ms)</div>
+                    <InputNumber pt:pcInputText:root:size="6" v-model="animationDuration" :min="100":max="5000" :useGrouping="false"/>
+                    <Slider class="mt-2 w-40" v-model="animationDuration" :min="100" :step="100" :max="5000"/>
+                </div>
+            </div>
         </div>
+
+        
         
         <!-- Floating button -->
-        <Button icon="pi pi-plus" rounded class="float" :pt="{root: 'big-button'}" @click="togglePopover"/>
+        <Button icon="pi pi-plus" rounded class="float z-10" :pt="{root: 'big-button'}" @click="togglePopover"/>
 
+        <!-- Add layout popover -->
         <Popover ref="pop">
             <div class="w-100 flex flex-col gap-4">
                 <div class="flex justify-center gap-4">
@@ -183,6 +219,7 @@ const orderedLayouts = computed(() => {
             </div>
         </Popover>
 
+        <!-- Atem IP popover -->
         <Popover ref="atemPop">
             <div class="flex flex-row gap-4">
                 <FloatLabel variant="in">
@@ -199,7 +236,7 @@ const orderedLayouts = computed(() => {
 <style scoped>
 .float {
     position: fixed;
-    right: 2rem;
+    right: 15rem;
     bottom: 2rem;
 }
 

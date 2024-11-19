@@ -12,6 +12,10 @@ import FloatLabel from "primevue/floatlabel";
 import SelectButton from "primevue/selectbutton";
 import ConfirmDialog from "primevue/confirmdialog";
 import ConfirmationService from "primevue/confirmationservice";
+import InputNumber from "primevue/inputnumber";
+import Slider from "primevue/slider";
+import ScrollPanel from "primevue/scrollpanel";
+import Divider from "primevue/divider";
 
 import "./style.css";
 import App from "./App.vue";
@@ -31,5 +35,9 @@ createApp(App)
   .component("FloatLabel", FloatLabel)
   .component("SelectButton", SelectButton)
   .component("ConfirmDialog", ConfirmDialog)
+  .component("InputNumber", InputNumber)
+  .component("Slider", Slider)
+  .component("ScrollPanel", ScrollPanel)
+  .component("Divider", Divider)
   .use(ConfirmationService)
   .mount("#app");
