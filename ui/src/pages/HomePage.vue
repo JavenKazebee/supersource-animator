@@ -7,7 +7,6 @@ import { VueDraggable } from 'vue-draggable-plus';
 
 const liveLayout = ref(-1);
 
-
 // Delete confirmation dialog
 const confirm = useConfirm();
 const confirmDelete = (layout: number) => {
@@ -74,7 +73,8 @@ function toggleAtemIPPopover(event: Event) {
 // Animate to the selected layout
 function setLayout(layout: number) {
     if(atemConnected) {
-        sendMessage("animate", {superSource: liveSuperSource.value.value, layout: layout});
+        //sendMessage("animate", {superSource: liveSuperSource.value.value, layout: layout});
+        sendMessage("animateFromSource", {superSource: liveSuperSource.value.value, layout: layout, mixEngine: 0});
         liveLayout.value = layout;
     }
 }

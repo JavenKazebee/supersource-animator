@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { AnimationDurationMessage, AnimationFPSMessage, AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, LayoutsMessage, SetSuperSourceLayoutMessage } from "../../../backend/types"
+import { AnimateFromSourceMessage, AnimationDurationMessage, AnimationFPSMessage, AtemConnectionMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, LayoutsMessage, SetSuperSourceLayoutMessage } from "../../../backend/types"
 import { ref } from "vue";
 
 const socket = io("localhost:3000");
@@ -32,6 +32,7 @@ socket.on("animationDuration", (data: AnimationDurationMessage) => {
 });
 
 export function sendMessage(name: string, message: CreateLayoutMessage | SetSuperSourceLayoutMessage | 
-    AtemIPMessage | DeleteLayoutMessage | LayoutOrderMessage | AnimationFPSMessage | AnimationDurationMessage) {
+    AtemIPMessage | DeleteLayoutMessage | LayoutOrderMessage | AnimationFPSMessage | 
+    AnimationDurationMessage | AnimateFromSourceMessage) {
     socket.emit(name, message);
 }

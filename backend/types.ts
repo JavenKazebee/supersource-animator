@@ -34,6 +34,12 @@ export interface AnimateMessage {
     layout: number;
 }
 
+export interface AnimateFromSourceMessage {
+    superSource: number;
+    layout: number;
+    mixEngine: number;
+}
+
 export interface DeleteLayoutMessage {
     layout: number;
 }

@@ -1,10 +1,10 @@
 import { Server } from "socket.io"
 import { Atem } from "atem-connection";
-import type { AnimateMessage, AnimationDurationMessage, AnimationFPSMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, SetSuperSourceLayoutMessage } from "./types.ts";
+import type { AnimateFromSourceMessage, AnimateMessage, AnimationDurationMessage, AnimationFPSMessage, AtemIPMessage, CreateLayoutMessage, DeleteLayoutMessage, Layout, LayoutOrderMessage, SetSuperSourceLayoutMessage } from "./types.ts";
 import { SuperSource } from "./node_modules/atem-connection/dist/state/video/superSource.d.ts";
 import { SuperSourceBox } from "atem-connection/dist/state/video/superSource.js";
 import { loadState, saveState } from "./state.ts";
-import { animateBetweenLayouts } from "./animation.ts";
+import { animateBetweenLayouts, animateFromSourceToLayout } from "./animation.ts";
 
 const atem = new Atem();
 let atemConnected = false;
@@ -59,8 +59,16 @@ io.on("connection", socket => {
         animationPlaying = true;
         const current = atem.state?.video.superSources[message.superSource] as SuperSource
         animateBetweenLayouts(atem, current, state.layouts.get(message.layout)!.superSource, state.animationFPS, state.animationDuration, message.superSource);
-      } else {
-        console.log("Layout not found");
+      }
+    }
+  });
+
+  // Animate from full screen source to layout
+  socket.on("animateFromSource", (message: AnimateFromSourceMessage) => {
+    if(atemConnected && !animationPlaying) {
+      if(state.layouts.has(message.layout)) {
+        animationPlaying = true;
+        animateFromSourceToLayout(atem, atem.state?.video.mixEffects[0]?.programInput ?? 0, state.layouts.get(message.layout)!.superSource, state.animationFPS, state.animationDuration, message.superSource);
       }
     }
   });

@@ -33,7 +33,7 @@ export async function loadState(): Promise<State> {
         }
         return state as State;
 
-    } catch (error) {
+    } catch (_error) {
         // Return empty state if no file
         return {atemIP: "", layouts: new Map<number, Layout>(), layoutOrder: [], layoutIDCounter: 0, animationFPS: 60, animationDuration: 1000} as State;
     }

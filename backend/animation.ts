@@ -148,3 +148,82 @@ export function animateBetweenLayouts(atem: Atem, start: SuperSource, end: Super
 
     animate(atem, start, end, 0, frames, delay, superSource);
 }
+
+export function animateFromSourceToLayout(atem: Atem, sourceID: number, layout: SuperSource, frameRate: number, duration: number, superSource: number) {
+    const frames = (duration / 1000) * frameRate;
+    const delay = 1000 / frameRate;
+
+    // How far to get frame off screen
+    const offScreenX = 3500;
+    const offScreenY = 2000;
+
+    // Clone layout for starting point
+    const start: SuperSource = JSON.parse(JSON.stringify(layout));
+
+    for(let i = 0; i < start.boxes.length; i++) {
+
+        console.log("ME Source: " + sourceID +  " Box Source: " + start.boxes[i]?.source);
+        // If box contains the source, make it full screen
+        if(start.boxes[i]?.source === sourceID) {
+            start.boxes[i]!.x = 0;
+            start.boxes[i]!.y = 0;
+            start.boxes[i]!.size = 1000;
+            start.boxes[i]!.cropTop = 0;
+            start.boxes[i]!.cropBottom = 0;
+            start.boxes[i]!.cropLeft = 0;
+            start.boxes[i]!.cropRight = 0;
+
+            start.boxes[i]!.enabled = true;
+            start.boxes[i]!.cropped = true;
+        } 
+        // If the box doesn't contain the source but should be present, enable it off screen
+        else if(start.boxes[i]?.enabled) {
+            // Find closest edge
+            const top = offScreenY - (start.boxes[i]?.y as number);
+            const bottom = offScreenY + (start.boxes[i]?.y as number);
+            const left = offScreenX + (start.boxes[i]?.x as number);
+            const right = offScreenX - (start.boxes[i]?.x as number);
+
+            // Set box to animate onto the screen from closest edge direction
+            switch(Math.min(top, bottom, left, right)) {
+                case left:
+                    start.boxes[i]!.x = -offScreenX;
+                    start.boxes[i]!.y = layout.boxes[i]!.y;
+                    break;
+                case right:
+                    start.boxes[i]!.x = offScreenX;
+                    start.boxes[i]!.y = layout.boxes[i]!.y;
+                    break;
+                case top:
+                    start.boxes[i]!.y = offScreenY;
+                    start.boxes[i]!.x = layout.boxes[i]!.x;
+                    break;
+                case bottom:
+                    start.boxes[i]!.y = -offScreenY;
+                    start.boxes[i]!.x = layout.boxes[i]!.x;
+                    break;
+            }
+
+            // Clear out crop values for start
+            start.boxes[i]!.cropTop = 0;
+            start.boxes[i]!.cropBottom = 0;
+            start.boxes[i]!.cropLeft = 0;
+            start.boxes[i]!.cropRight = 0;
+        }
+        // Otherwise, diable the box
+        else {
+            start.boxes[i]!.enabled = false;
+        }
+    }
+
+    // Set initial framing
+    // TODO instead of animate() make a setLayout() / setBox() function
+    animate(atem, start, start, 0, 1, 0, superSource);
+
+    // Cut to supersource
+    // TODO allow selection of superSource (6000 vs 6001)
+    atem.changeProgramInput(6001, 0);
+
+    // Start animation
+    animate(atem, start, layout, 0, frames, delay, superSource);
+}
